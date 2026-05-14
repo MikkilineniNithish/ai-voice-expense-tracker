@@ -1,0 +1,133 @@
+body {
+    background-color: #121212;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    width: 85%;
+    margin: auto;
+    text-align: center;
+    margin-top: 40px;
+}
+
+h1 {
+    font-size: 50px;
+    color: #00adb5;
+}
+
+.dashboard {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: #1e1e1e;
+    padding: 25px;
+    width: 250px;
+    border-radius: 12px;
+}
+
+.card h2 {
+    color: #00adb5;
+}
+
+.card p {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.expense-form,
+.budget-form {
+    margin-top: 30px;
+}
+
+input,
+select {
+    padding: 12px;
+    width: 220px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px;
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #00adb5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #019ca3;
+}
+
+.warning {
+    margin-top: 30px;
+    background-color: crimson;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.chart-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 50px;
+}
+
+.expense-list {
+    margin-top: 50px;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 15px;
+    border: 1px solid #333;
+}
+
+th {
+    background-color: #00adb5;
+}
+
+tr {
+    background-color: #1e1e1e;
+}
+
+.delete-btn {
+    background-color: crimson;
+}
+
+.ai-box {
+    margin-top: 30px;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 20px;
+}
+
+.progress-bar-container {
+    width: 80%;
+    height: 30px;
+    background-color: #333;
+    border-radius: 20px;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #00adb5;
+    border-radius: 20px;
+}

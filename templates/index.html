@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Voice Expense Tracker</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>AI Voice Expense Tracker</h1>
+
+        <h2>Welcome, {{ username }}</h2>
+
+        <a href="/logout">
+            <button>Logout</button>
+        </a>
+
+        <a href="/download_report">
+            <button>Download PDF Report</button>
+        </a>
+
+        <p>Track expenses using voice and AI insights.</p>
+
+        <div class="ai-box">
+            🤖 AI Insight: {{ ai_message }}
+        </div>
+
+        <div class="dashboard">
+
+            <div class="card">
+                <h2>Total Expenses</h2>
+                <p>₹ {{ total_expense }}</p>
+            </div>
+
+            <div class="card">
+                <h2>Total Entries</h2>
+                <p>{{ total_entries }}</p>
+            </div>
+
+            <div class="card">
+                <h2>Remaining Budget</h2>
+                <p>₹ {{ remaining_balance }}</p>
+            </div>
+
+        </div>
+
+        <div class="progress-bar-container">
+
+            <div class="progress-bar"
+                 style="width: {{ progress_percentage }}%;">
+
+            </div>
+
+        </div>
+
+        <p>{{ progress_percentage }}% Budget Used</p>
+
+        <button type="button" onclick="startVoice()">
+        🎤 Start Voice Entry
+        </button>
+
+        <p id="voice-text"></p>
+
+        <p id="voice-text"></p>
+
+        <form method="GET">
+
+            <input type="text"
+                   name="search"
+                   placeholder="Search Category">
+
+            <button type="submit">Search</button>
+
+        </form>
+
+        <form class="budget-form" method="POST">
+
+            <input type="number"
+                   name="budget"
+                   placeholder="Set Monthly Budget"
+                   required>
+
+            <button type="submit"
+                    name="set_budget">
+
+                Set Budget
+
+            </button>
+
+        </form>
+
+        <form class="expense-form"
+              method="POST">
+
+            <input type="text"
+                   id="expense_name"
+                   name="expense_name"
+                   placeholder="Enter Expense Name"
+                   required>
+
+            <select name="category"
+                    id="category"
+                    required>
+
+                <option value="">Select Category</option>
+                <option value="Food">Food</option>
+                <option value="Travel">Travel</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Bills">Bills</option>
+                <option value="Entertainment">Entertainment</option>
+
+            </select>
+
+            <input type="number"
+                   id="amount"
+                   name="amount"
+                   placeholder="Enter Amount"
+                   required>
+
+            <button type="submit">
+                Add Expense
+            </button>
+
+        </form>
+
+        {% if remaining_balance < 0 %}
+
+        <div class="warning">
+            ⚠ You exceeded your budget!
+        </div>
+
+        {% endif %}
+
+        <div class="chart-container">
+
+            <canvas id="expenseChart"></canvas>
+
+        </div>
+
+        <div class="expense-list">
+
+            <h2>Expense History</h2>
+
+            <table>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Expense</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for expense in expenses %}
+
+                <tr>
+
+                    <td>{{ expense[0] }}</td>
+                    <td>{{ expense[2] }}</td>
+                    <td>{{ expense[3] }}</td>
+                    <td>₹ {{ expense[4] }}</td>
+
+                    <td>
+
+                        <a href="/delete/{{ expense[0] }}">
+
+                            <button class="delete-btn">
+                                Delete
+                            </button>
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <script>
+
+const expenseNames = {{ expense_names | safe }};
+const expenseAmounts = {{ expense_amounts | safe }};
+
+const ctx = document.getElementById('expenseChart');
+
+new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: expenseNames,
+        datasets: [{
+            label: 'Expenses',
+            data: expenseAmounts,
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+
+function startVoice() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        alert("Please use Google Chrome.");
+
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+
+    recognition.continuous = false;
+
+    recognition.interimResults = true;
+
+    recognition.maxAlternatives = 3;
+
+    recognition.start();
+
+    document.getElementById("voice-text").innerText =
+        "🎤 Listening carefully...";
+
+    recognition.onresult = function(event) {
+
+        let transcript = "";
+
+        for (let i = event.resultIndex;
+             i < event.results.length;
+             ++i) {
+
+            transcript +=
+                event.results[i][0].transcript;
+        }
+
+        transcript = transcript.toLowerCase();
+
+        document.getElementById("voice-text").innerText =
+            "You said: " + transcript;
+
+        document.getElementById("expense_name").value =
+            transcript;
+
+        const amountMatch =
+            transcript.match(/\d+/);
+
+        if (amountMatch) {
+
+            document.getElementById("amount").value =
+                amountMatch[0];
+        }
+
+        if (transcript.includes("food")) {
+
+            document.getElementById("category").value =
+                "Food";
+
+        } else if (transcript.includes("travel")) {
+
+            document.getElementById("category").value =
+                "Travel";
+
+        } else if (transcript.includes("shopping")) {
+
+            document.getElementById("category").value =
+                "Shopping";
+
+        } else if (transcript.includes("bill")) {
+
+            document.getElementById("category").value =
+                "Bills";
+
+        } else if (transcript.includes("entertainment")) {
+
+            document.getElementById("category").value =
+                "Entertainment";
+        }
+    };
+
+    recognition.onerror = function(event) {
+
+        document.getElementById("voice-text").innerText =
+            "Error: " + event.error;
+
+        console.log(event.error);
+    };
+
+    recognition.onend = function() {
+
+        document.getElementById("voice-text").innerText +=
+            " ✅ Voice completed";
+    };
+}
+
+</script>
+
+</body>
+
+</html>
